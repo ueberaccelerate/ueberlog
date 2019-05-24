@@ -1,2 +1,2 @@
-# cmake_cpp_project
-A template project for modern c++
+# ueberlog
+A simple logger and assert library. header only
