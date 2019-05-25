@@ -18,7 +18,7 @@ class Asserter {
     template<typename ...Args>
     void throw_assert(const bool condition, const char *file, const int line, const char *message, Args ...args) {
       if( !isrelease && !condition ) {
-        printf("[ASSERT]: %s in %d line", file, line);
+        printf("[ASSERT]: %s in %d line ", file, line);
         Logger::i().print(message, args...);
         throw 1;
       }

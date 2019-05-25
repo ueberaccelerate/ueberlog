@@ -21,25 +21,25 @@ class Logger {
 #endif
     public:
     template<typename ...Args>
-    void debug( const char *message, Args ...args ) {
+    void debug( const char* file, const int line, const char *message, Args ...args ) {
       if( level <= Level::debug ) {
-        printf ( "[DEBUG]: %s in %d line: ", __FILE__, __LINE__ );
+        printf ( "[DEBUG]: %s in %d line: ", file, line );
         print  ( message, args...);
       }
     }
 
     template<typename ...Args>
-    void warn( const char *message, Args ...args ) {
+    void warn( const char* file, const int line, const char *message, Args ...args ) {
       if( level <= Level::warn ) {
-        printf ( "[WARN]: %s in %d line: ", __FILE__, __LINE__ );
+        printf ( "[WARN]: %s in %d line: ", file, line );
         print  ( message, args...);
       }
     }
 
     template<typename ...Args>
-    void error( const char *message, Args ...args ) {
+    void error( const char* file, const int line, const char *message, Args ...args ) {
       if( level <= Level::error ) {
-        printf ( "[ERROR]: %s in %d line: ", __FILE__, __LINE__ );
+        printf ( "[ERROR]: %s in %d line: ", file, line );
         print  (message, args...);
       }
     }
