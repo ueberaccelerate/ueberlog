@@ -30,39 +30,49 @@ namespace ueberlog {
   #else
       Level level{Level::debug};
   #endif
+      std::string level_to_string(const Level level) {
+        switch(level) {
+          case Level::debug: return "DEBUG";
+          case Level::info:  return "INFO";
+          case Level::warn:  return "WARN";
+          case Level::error: return "ERROR";
+          default: return "";
+        }
+      }
+      template<typename ...Args>
+      void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args ...args) {
+        std::printf( "%s [%s]: %s in %d line: ", timestamp.c_str(), level_to_string(level).c_str(), file, line );
+        print( message, args... );
+      }
       public:
+
       template<typename ...Args>
       void debug( const char* file, const int line, const char *message, Args ...args ) {
         if( level <= Level::debug ) {
-          std::printf ( "%s [DEBUG]: %s in %d line: ", get_timestamp().c_str(), file, line );
-          print  ( message, args...);
+          print_log_level(Level::debug, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
-      void info(const char *message, Args ...args ) {
+      void info( const char* file, const int line, const char *message, Args ...args ) {
         if( level <= Level::info ) {
-          std::printf ( "%s [INFO]: ", get_timestamp().c_str());
-          print  ( message, args...);
+          print_log_level(Level::info, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
       void warn( const char* file, const int line, const char *message, Args ...args ) {
         if( level <= Level::warn ) {
-          std::printf ( "%s [WARN]: %s in %d line: ", get_timestamp().c_str(), file, line );
-          print  ( message, args...);
+          print_log_level(Level::warn, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
       void error( const char* file, const int line, const char *message, Args ...args ) {
         if( level <= Level::error ) {
-          std::printf ( "%s [ERROR]: %s in %d line: ", get_timestamp().c_str(), file, line );
-          print  (message, args...);
+          print_log_level(Level::error, get_timestamp(), file, line, message, args...);
         }
       }
-  
   };
 }
 #endif //UEBERLOG_LOGGER_HPP
