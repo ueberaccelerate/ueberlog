@@ -30,7 +30,7 @@ namespace ueberlog {
             print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, args...);
             print(message, args...);
           }
-          throw 1; 
+          assert(condition);
         }
       }
   };

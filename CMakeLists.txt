@@ -1,13 +1,7 @@
 cmake_minimum_required( VERSION 3.4.3 )
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 project( ueberlog )
-
-#include(common)
-#info( "Module path: ${CMAKE_MODULE_PATH}" )
-
 set (TARGET_NAME ${PROJECT_NAME})
 
-#info( "Target name: ${TARGET_NAME}" )
 add_library(${TARGET_NAME} SHARED "")
 
 add_subdirectory(include)
