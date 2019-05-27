@@ -18,32 +18,12 @@ namespace ueberlog {
         static Logger inst;
         return inst;
       }
-      enum class Level {
-        debug,
-        info,
-        warn,
-        error
-      };
       private:
   #if defined NDEBUG
       Level level{Level::error};
   #else
       Level level{Level::debug};
   #endif
-      std::string level_to_string(const Level level) const {
-        switch(level) {
-          case Level::debug: return "DEBUG";
-          case Level::info:  return "INFO";
-          case Level::warn:  return "WARN";
-          case Level::error: return "ERROR";
-          default: return "";
-        }
-      }
-      template<typename ...Args>
-      void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args ...args) const {
-        std::printf( "%s [%s]: %s in %d line: ", timestamp.c_str(), level_to_string(level).c_str(), file, line );
-        print( message, args... );
-      }
       public:
 
       template<typename ...Args>

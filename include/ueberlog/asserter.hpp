@@ -26,8 +26,8 @@ namespace ueberlog {
       void throw_assert(const bool condition, const char *file, const int line, const char *message, Args ...args) const {
         if( !isrelease && !condition ) {
           {
-            Color c{Color::blue};
-            printf("%s [ASSERT]: %s in %d line ", get_timestamp().c_str(), file, line);
+            Color c{Color::red};
+            print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, args...);
             print(message, args...);
           }
           throw 1; 
