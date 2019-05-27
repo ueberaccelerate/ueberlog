@@ -30,7 +30,7 @@ namespace ueberlog {
   #else
       Level level{Level::debug};
   #endif
-      std::string level_to_string(const Level level) {
+      std::string level_to_string(const Level level) const {
         switch(level) {
           case Level::debug: return "DEBUG";
           case Level::info:  return "INFO";
@@ -40,35 +40,35 @@ namespace ueberlog {
         }
       }
       template<typename ...Args>
-      void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args ...args) {
+      void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args ...args) const {
         std::printf( "%s [%s]: %s in %d line: ", timestamp.c_str(), level_to_string(level).c_str(), file, line );
         print( message, args... );
       }
       public:
 
       template<typename ...Args>
-      void debug( const char* file, const int line, const char *message, Args ...args ) {
+      void debug( const char* file, const int line, const char *message, Args ...args ) const {
         if( level <= Level::debug ) {
           print_log_level(Level::debug, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
-      void info( const char* file, const int line, const char *message, Args ...args ) {
+      void info( const char* file, const int line, const char *message, Args ...args ) const {
         if( level <= Level::info ) {
           print_log_level(Level::info, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
-      void warn( const char* file, const int line, const char *message, Args ...args ) {
+      void warn( const char* file, const int line, const char *message, Args ...args ) const {
         if( level <= Level::warn ) {
           print_log_level(Level::warn, get_timestamp(), file, line, message, args...);
         }
       }
   
       template<typename ...Args>
-      void error( const char* file, const int line, const char *message, Args ...args ) {
+      void error( const char* file, const int line, const char *message, Args ...args ) const {
         if( level <= Level::error ) {
           print_log_level(Level::error, get_timestamp(), file, line, message, args...);
         }

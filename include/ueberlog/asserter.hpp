@@ -22,9 +22,8 @@ namespace ueberlog {
         static Asserter inst;
         return inst;
       }
-  
       template<typename ...Args>
-      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args ...args) {
+      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args ...args) const {
         if( !isrelease && !condition ) {
           printf("%s [ASSERT]: %s in %d line ", get_timestamp().c_str(), file, line);
           print(message, args...);
