@@ -55,7 +55,7 @@ namespace ueberlog {
     return ss.str();
   }
   template <typename ...Args>
-  void print( const char *message, Args ...args) {
+  void print( const char * const message, Args ...args) {
     char *point = const_cast<char *>(message);
     int argscount{0};
     while(*point != '\0') {
