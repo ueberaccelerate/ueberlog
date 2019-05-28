@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 
 #include <cstdio>
 
@@ -23,7 +24,7 @@ namespace ueberlog {
       const std::array<const char*, 6> colors_ {"\u001b[31m", "\u001b[32m", "\u001b[34m", "\u001b[36m", "\u001b[33m", "\u001b[0m"};
       printf("%s", colors_[color] );
     }
-    Color (const Type color) {
+    explicit Color (const Type color) {
       set_color(color);
     }
     ~Color() {
@@ -55,7 +56,7 @@ namespace ueberlog {
     return ss.str();
   }
   template <typename ...Args>
-  void print( const char * const message, Args ...args) {
+  void print( const char * const message, Args&& ...args) {
     char *point = const_cast<char *>(message);
     int argscount{0};
     while(*point != '\0') {
@@ -63,7 +64,7 @@ namespace ueberlog {
       point++;
     }
     if( argscount == sizeof...(args) ) {
-      std::printf (message, args...);
+      std::printf (message, std::forward<Args&&>(args)...);
     }
   }
   template<>
@@ -72,9 +73,9 @@ namespace ueberlog {
   }
 
   template<typename ...Args>
-  void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args ...args) {
+  void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args&& ...args) {
     std::printf( "%s [%s]: %s in %d line: ", timestamp.c_str(), level_to_string(level).c_str(), file, line );
-    print( message, args... );
+    print( message, std::forward<Args&&>(args)... );
   }
 }
 #endif // UEBERLOG_COMMON_HPP

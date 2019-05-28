@@ -23,11 +23,11 @@ namespace ueberlog {
         return inst;
       }
       template<typename ...Args>
-      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args ...args) const {
+      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args&& ...args) const {
         if( !isrelease && !condition ) {
           {
             Color c{Color::red};
-            print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, args...);
+            print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, std::forward<Args&&>(args)...);
             print(message, args...);
           }
           assert(condition);

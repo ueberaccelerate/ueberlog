@@ -27,34 +27,34 @@ namespace ueberlog {
       public:
 
       template<typename ...Args>
-      void debug( const char* file, const int line, const char *message, Args ...args ) const {
+      void debug( const char* file, const int line, const char *message, Args&& ...args ) const {
         if( level <= Level::debug ) {
           Color c{Color::blue};
-          print_log_level(Level::debug, get_timestamp(), file, line, message, args...);
+          print_log_level(Level::debug, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void info( const char* file, const int line, const char *message, Args ...args ) const {
+      void info( const char* file, const int line, const char *message, Args&& ...args ) const {
         if( level <= Level::info ) {
           Color c{Color::cyan};
-          print_log_level(Level::info, get_timestamp(), file, line, message, args...);
+          print_log_level(Level::info, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void warn( const char* file, const int line, const char *message, Args ...args ) const {
+      void warn( const char* file, const int line, const char *message, Args&& ...args ) const {
         if( level <= Level::warn ) {
           Color c{Color::yellow};
-          print_log_level(Level::warn, get_timestamp(), file, line, message, args...);
+          print_log_level(Level::warn, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void error( const char* file, const int line, const char *message, Args ...args ) const {
+      void error( const char* file, const int line, const char *message, Args&& ...args ) const {
         if( level <= Level::error ) {
           Color c{Color::red};
-          print_log_level(Level::error, get_timestamp(), file, line, message, args...);
+          print_log_level(Level::error, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
         }
       }
   };
