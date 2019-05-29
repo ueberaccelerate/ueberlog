@@ -6,6 +6,6 @@ int main() {
   ERROR("HELP %d %f\n", 42, 3.14f);
   WARN("HELP %d %f\n", 42, 3.14f);
   ASSERT(false, " %d != %d\n", 42, 43);
-//  ASSERT(false, "hell");
+
   return 0;
 }
