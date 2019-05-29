@@ -20,8 +20,10 @@ namespace ueberlog {
       }
       private:
   #if defined NDEBUG
+      bool isrelease{true};
       Level level{Level::error};
   #else
+      bool isrelease{false};
       Level level{Level::debug};
   #endif
       public:
@@ -55,6 +57,17 @@ namespace ueberlog {
         if( level <= Level::error ) {
           Color c{Color::red};
           print_log_level(Level::error, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
+        }
+      }
+      template<typename ...Args>
+      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args&& ...args) const {
+        if( !isrelease && !condition ) {
+          {
+            Color c{Color::red};
+            print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, std::forward<Args&&>(args)...);
+            print(message, args...);
+          }
+          assert(condition);
         }
       }
   };
