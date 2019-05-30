@@ -10,7 +10,7 @@ Use with cmake:
 
 ```cmake
 add_subdirectory(ueberlog)
-target_link_libraries ( <YOUR_TARGER> PUBLIC ueberlog )
+target_link_libraries ( <YOUR_TARGET> PUBLIC ueberlog )
 ```
 Console version:
 ```bash
