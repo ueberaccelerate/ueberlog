@@ -18,8 +18,8 @@ namespace ueberlog {
       green, // \u001b[32m
       blue,  // \u001b[34m
       cyan,  // \u001b[36m
-      yellow,
-      reset
+      yellow,// \u001b[33m
+      reset  // \u001b[0m
     };
     void set_color ( Type color ) const {
       const std::array<const char*, 6> colors_ {"\u001b[31m", "\u001b[32m", "\u001b[34m", "\u001b[36m", "\u001b[33m", "\u001b[0m"};
@@ -75,7 +75,7 @@ namespace ueberlog {
 
   template<typename ...Args>
   void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args&& ...args) {
-    std::printf( "%s [%s]: %s in %d line: ", timestamp.c_str(), level_to_string(level).c_str(), file, line );
+    std::printf( "%s [%s %s:%d]:", timestamp.c_str(), level_to_string(level).c_str(), file, line );
     print( message, std::forward<Args&&>(args)... );
   }
 }
