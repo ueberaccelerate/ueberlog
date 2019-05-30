@@ -30,57 +30,57 @@ namespace ueberlog {
 #endif
       public:
       template<typename ...Args>
-      void debug( const char* file, const int line, const char *message, Args&& ...args ) const {
+      void debug( const char* function_name, const int line, const char *message, Args&& ...args ) const {
 #ifdef THREAD_SAFE
         [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
         if( level <= Level::debug ) {
           Color c{Color::blue};
-          print_log_level(Level::debug, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
+          print_log_level(Level::debug, get_timestamp(), function_name, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void info( const char* file, const int line, const char *message, Args&& ...args ) const {
+      void info( const char* function_name, const int line, const char *message, Args&& ...args ) const {
 #ifdef THREAD_SAFE
         [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
         if( level <= Level::info ) {
           Color c{Color::cyan};
-          print_log_level(Level::info, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
+          print_log_level(Level::info, get_timestamp(), function_name, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void warn( const char* file, const int line, const char *message, Args&& ...args ) const {
+      void warn( const char* function_name, const int line, const char *message, Args&& ...args ) const {
 #ifdef THREAD_SAFE
         [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
         if( level <= Level::warn ) {
           Color c{Color::yellow};
-          print_log_level(Level::warn, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
+          print_log_level(Level::warn, get_timestamp(), function_name, line, message, std::forward<Args&&>(args)...);
         }
       }
   
       template<typename ...Args>
-      void error( const char* file, const int line, const char *message, Args&& ...args ) const {
+      void error( const char* function_name, const int line, const char *message, Args&& ...args ) const {
 #ifdef THREAD_SAFE
         [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
         if( level <= Level::error ) {
           Color c{Color::red};
-          print_log_level(Level::error, get_timestamp(), file, line, message, std::forward<Args&&>(args)...);
+          print_log_level(Level::error, get_timestamp(), function_name, line, message, std::forward<Args&&>(args)...);
         }
       }
       template<typename ...Args>
-      void throw_assert(const bool condition, const char *file, const int line, const char *message, Args&& ...args) const {
+      void throw_assert(const bool condition, const char *function_name, const int line, const char *message, Args&& ...args) const {
 #ifdef THREAD_SAFE
         [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
         if( !isrelease && !condition ) {
           {
             Color c{Color::red};
-            print_log_level(Level::assert, get_timestamp().c_str(), file, line, message, std::forward<Args&&>(args)...);
+            print_log_level(Level::assert, get_timestamp().c_str(), function_name, line, message, std::forward<Args&&>(args)...);
             print(message, args...);
           }
           assert(condition);

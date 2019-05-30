@@ -74,8 +74,8 @@ namespace ueberlog {
   }
 
   template<typename ...Args>
-  void print_log_level(const Level level, const std::string& timestamp, const char* file, const int line, const char *message, Args&& ...args) {
-    std::printf( "%s [%s %s:%d]:", timestamp.c_str(), level_to_string(level).c_str(), file, line );
+  void print_log_level(const Level level, const std::string& timestamp, const char* function_name, const int line, const char *message, Args&& ...args) {
+    std::printf( "%s [%s %s:%d]:", timestamp.c_str(), level_to_string(level).c_str(), function_name, line );
     print( message, std::forward<Args&&>(args)... );
   }
 }
