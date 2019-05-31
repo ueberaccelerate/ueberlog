@@ -8,7 +8,9 @@
 #include <mutex>
 #include <utility>
 
+#include <cassert>
 #include <cstdio>
+
 
 namespace ueberlog {
   class Color {
@@ -72,12 +74,14 @@ namespace ueberlog {
   void print( const char *message) {
     std::printf ("%s", message);
   }
+#ifdef THREAD_SAFE
+  auto& logger_mutex = []() -> std::mutex& {static std::mutex inst; return inst; }();
+#endif
 
   template<typename ...Args>
   void print_log_level(const Level level, const Color::Type &color, const std::string& timestamp, 
                         const char* function_name, const int line, const char *message, Args&& ...args) {
 #ifdef THREAD_SAFE
-    auto& logger_mutex = []() -> std::mutex& {static std::mutex inst; return inst; }();
     [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
     Color c{color};
