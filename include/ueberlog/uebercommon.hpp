@@ -74,7 +74,13 @@ namespace ueberlog {
   }
 
   template<typename ...Args>
-  void print_log_level(const Level level, const std::string& timestamp, const char* function_name, const int line, const char *message, Args&& ...args) {
+  void print_log_level(const Level level, const Color::Type &color, const std::string& timestamp, 
+                        const char* function_name, const int line, const char *message, Args&& ...args) {
+#ifdef THREAD_SAFE
+    auto& logger_mutex = []() -> std::mutex& {static std::mutex inst; return inst; }();
+    [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
+#endif
+    Color c{color};
     std::printf( "%s [%s %s:%d]:", timestamp.c_str(), level_to_string(level).c_str(), function_name, line );
     print( message, std::forward<Args&&>(args)... );
   }
