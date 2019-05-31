@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstdio>
 
+#define UEBERLOG_INLINE inline 
 
 namespace ueberlog {
   class Color {
@@ -41,7 +42,7 @@ namespace ueberlog {
     error,
     assert
   };
-  std::string level_to_string(const Level level) {
+  UEBERLOG_INLINE std::string level_to_string(const Level level) {
     switch(level) {
       case Level::debug:  return "DEBUG";
       case Level::info:   return "INFO";
@@ -51,7 +52,7 @@ namespace ueberlog {
       default: return "";
     }
   }
-  std::string get_timestamp() {
+  UEBERLOG_INLINE std::string get_timestamp() {
     auto now = std::chrono::system_clock::now();
     std::time_t now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(24));
     std::stringstream ss;
@@ -59,7 +60,7 @@ namespace ueberlog {
     return ss.str();
   }
   template <typename ...Args>
-  void print( const char * const message, Args&& ...args) {
+  UEBERLOG_INLINE void print( const char * const message, Args&& ...args) {
     char *point = const_cast<char *>(message);
     int argscount{0};
     while(*point != '\0') {
@@ -71,15 +72,17 @@ namespace ueberlog {
     }
   }
   template<>
-  void print( const char *message) {
+  UEBERLOG_INLINE void print( const char *message) {
     std::printf ("%s", message);
   }
 #ifdef THREAD_SAFE
-  auto& logger_mutex = []() -> std::mutex& {static std::mutex inst; return inst; }();
+ namespace {
+  std::mutex logger_mutex;// = []() -> std::mutex& {static std::mutex inst; return inst; }();
+ }
 #endif
 
   template<typename ...Args>
-  void print_log_level(const Level level, const Color::Type &color, const std::string& timestamp, 
+  UEBERLOG_INLINE void print_log_level(const Level level, const Color::Type &color, const std::string& timestamp,
                         const char* function_name, const int line, const char *message, Args&& ...args) {
 #ifdef THREAD_SAFE
     [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
