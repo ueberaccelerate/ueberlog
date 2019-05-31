@@ -5,9 +5,10 @@ option(BUILD_THREAD_SAFE "Build with thread safety" ON)
 
 add_library(${TARGET_NAME} SHARED "")
 
-add_subdirectory(include)
-add_subdirectory(src)
-add_subdirectory(example)
+add_subdirectory( include )
+add_subdirectory( src     )
+add_subdirectory( example )
+add_subdirectory( tools   )
 
 if (${BUILD_THREAD_SAFE})
   message( STATUS "Thread safe enabled" )
