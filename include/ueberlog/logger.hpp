@@ -5,12 +5,8 @@
 
 namespace ueberlog {
   /* easy logger */
-  class Logger {
+  class Logger : public nocopimovable{
     Logger() = default;
-    Logger(const Logger&) = delete;
-    Logger(Logger &&) = delete;
-    Logger operator=(const Logger&) = delete;
-    Logger operator=(Logger&&) = delete;
     public:
       static Logger &i() {
         static Logger inst;

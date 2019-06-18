@@ -14,7 +14,15 @@
 #define UEBERLOG_INLINE inline 
 
 namespace ueberlog {
-  class Color {
+  class nocopimovable {
+    public:
+    nocopimovable() = default;
+    nocopimovable(const nocopimovable &) = delete;
+    nocopimovable(nocopimovable &&) = delete;
+    nocopimovable operator=(const nocopimovable&) = delete;
+    nocopimovable operator=(nocopimovable&&) = delete;
+  };
+  class Color : public nocopimovable {
     public:
     enum Type : unsigned {
       red,   // \u001b[31m
@@ -25,10 +33,6 @@ namespace ueberlog {
       reset  // \u001b[0m
     };
     Color() = delete;
-    Color(const Color &) = delete;
-    Color(Color &&) = delete;
-    Color operator=(const Color&) = delete;
-    Color operator=(Color&&) = delete;
 
 
     explicit Color (const Type color) {
@@ -38,7 +42,7 @@ namespace ueberlog {
       set_color(reset);
     }
     void set_color ( Type color ) const {
-      const std::array<const char*, 6> colors_ {"\u001b[31m", "\u001b[32m", "\u001b[34m", "\u001b[36m", "\u001b[33m", "\u001b[0m"};
+      constexpr std::array<const char*, 6> colors_ {"\u001b[31m", "\u001b[32m", "\u001b[34m", "\u001b[36m", "\u001b[33m", "\u001b[0m"};
       printf("%s", colors_[color] );
     }
   };
@@ -55,12 +59,8 @@ namespace ueberlog {
       std::string function_name;
       std::size_t line;
     };
-  class ULogger {
+  class ULogger : public nocopimovable{
     ULogger() = default;
-    ULogger(const ULogger &) = delete;
-    ULogger(ULogger &&) = delete;
-    ULogger operator=(const ULogger&) = delete;
-    ULogger operator=(ULogger&&) = delete;
 #ifdef THREAD_SAFE
     std::mutex &logger_mutex = []() -> std::mutex& {static std::mutex inst; return inst; }();
 #endif
