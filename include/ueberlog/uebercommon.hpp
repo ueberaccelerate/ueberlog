@@ -49,6 +49,12 @@ namespace ueberlog {
     error,
     assert
   };
+    struct LogInfo {
+      Level level;
+      Color color;
+      std::string function_name;
+      std::size_t line;
+    };
   class ULogger {
     ULogger() = default;
     ULogger(const ULogger &) = delete;
@@ -81,7 +87,7 @@ namespace ueberlog {
       return ss.str();
     }
     template <typename ...Args>
-    UEBERLOG_INLINE void print( const char * const message, Args&& ...args) {
+    UEBERLOG_INLINE void print( const LogInfo& loginfo, const char * const message, Args&& ...args) {
       char *point = const_cast<char *>(message);
       int argscount{0};
       while(*point != '\0') {
@@ -89,23 +95,20 @@ namespace ueberlog {
         point++;
       }
       if( argscount == sizeof...(args) ) {
+        char buffer[256];
+        std::sprintf(buffer, "%s [%s %s:%lu]:", get_timestamp().c_str(), level_to_string(loginfo.level).c_str(), loginfo.function_name.c_str(), loginfo.line );
+        std::printf("%s", buffer);
         std::printf (message, std::forward<Args&&>(args)...);
       }
-    }
-    template<>
-    UEBERLOG_INLINE void print( const char *message) {
-      std::printf ("%s", message);
     }
 
     template<typename ...Args>
     UEBERLOG_INLINE void print_log_level(const Level level, const Color::Type &color,
-                          const char* function_name, const int line, const char *message, Args&& ...args) {
+                          const char* function_name, const std::size_t line, const char *message, Args&& ...args) {
 #ifdef THREAD_SAFE
       [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
-      Color c{color};
-      std::printf( "%s [%s %s:%d]:", get_timestamp().c_str(), level_to_string(level).c_str(), function_name, line );
-      print( message, std::forward<Args&&>(args)... );
+      print( LogInfo{level, Color{color}, function_name, line}, message, std::forward<Args&&>(args)... );
     }
   };
 }
