@@ -2,7 +2,9 @@
 #define UEBERLOG_UEBERLOG_HPP
 
 #include <array>
+#include <vector>
 #include <chrono>
+#include <fstream>
 #include <iomanip>
 #include <mutex>
 #include <sstream>
@@ -94,22 +96,29 @@ class ULogger : public nocopimovable {
     return ss.str();
   }
   template <typename... Args>
-  UEBERLOG_INLINE void print(const LogInfo &loginfo, const char *const message,
+  UEBERLOG_INLINE std::vector<char> print(const LogInfo &loginfo, const char *const message,
                              Args &&... args) {
     char *point = const_cast<char *>(message);
     int argscount{0};
-    while (*point != '\0') {
+    while (*point) {
       if (*point == '%') argscount++;
       point++;
     }
     if (argscount == sizeof...(args)) {
-      char buffer[256];
-      std::sprintf(buffer, "%s [%s %s:%lu]:", get_timestamp().c_str(),
+      auto size = std::snprintf(nullptr, 0, "%s [%s %s:%lu]: ", get_timestamp().c_str(),
                    level_to_string(loginfo.level).c_str(),
                    loginfo.function_name.c_str(), loginfo.line);
-      std::printf("%s", buffer);
-      std::printf(message, std::forward<Args &&>(args)...);
+      const auto offset = size;
+      size += std::snprintf(nullptr, 0, message, std::forward<Args>(args)...);
+      std::vector<char>  buffer_data(size+2);
+      std::snprintf(&buffer_data[0], offset + 1, "%s [%s %s:%lu]: ", get_timestamp().c_str(),
+                   level_to_string(loginfo.level).c_str(),
+                   loginfo.function_name.c_str(), loginfo.line);
+      std::snprintf(&buffer_data[0] + offset, buffer_data.size(), message, std::forward<Args>(args)...);
+      std::printf("%s", buffer_data.data());
+      return buffer_data;
     }
+    return std::vector<char>();
   }
 
   template <typename... Args>
@@ -121,8 +130,12 @@ class ULogger : public nocopimovable {
 #ifdef THREAD_SAFE
     [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
-    print(LogInfo{level, Color{color}, function_name, line}, message,
+    auto output = print(LogInfo{level, Color{color}, function_name, line}, message,
           std::forward<Args &&>(args)...);
+    {
+      std::ofstream save_file("data.log", std::ios_base::out | std::ios_base::app);
+      save_file << output.data();
+    }
   }
  private:
 #if defined NDEBUG
