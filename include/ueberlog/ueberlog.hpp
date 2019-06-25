@@ -2,20 +2,18 @@
 #define UEBERLOG_UEBERLOG_HPP
 
 #include <array>
-#include <vector>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <mutex>
 #include <sstream>
 #include <utility>
+#include <vector>
 
 #include <cassert>
 #include <cstdio>
 
 #define UEBERLOG_INLINE inline
-
-
 
 namespace ueberlog {
 class nocopimovable {
@@ -71,7 +69,8 @@ class ULogger : public nocopimovable {
   }();
 #endif
  protected:
-  UEBERLOG_INLINE std::string level_to_string(const Level level) const noexcept{
+  UEBERLOG_INLINE std::string level_to_string(const Level level) const
+      noexcept {
     switch (level) {
       case Level::debug:
         return "DEBUG";
@@ -96,8 +95,9 @@ class ULogger : public nocopimovable {
     return ss.str();
   }
   template <typename... Args>
-  UEBERLOG_INLINE std::vector<char> print(const LogInfo &loginfo, const char *const message,
-                             Args &&... args) {
+  UEBERLOG_INLINE std::string_view print(const LogInfo &loginfo,
+                                          const char *const message,
+                                          Args &&... args) {
     char *point = const_cast<char *>(message);
     int argscount{0};
     while (*point) {
@@ -105,20 +105,23 @@ class ULogger : public nocopimovable {
       point++;
     }
     if (argscount == sizeof...(args)) {
-      auto size = std::snprintf(nullptr, 0, "%s [%s %s:%lu]: ", get_timestamp().c_str(),
-                   level_to_string(loginfo.level).c_str(),
-                   loginfo.function_name.c_str(), loginfo.line);
+      auto size =
+          std::snprintf(nullptr, 0, "%s [%s %s:%lu]: ", get_timestamp().c_str(),
+                        level_to_string(loginfo.level).c_str(),
+                        loginfo.function_name.c_str(), loginfo.line);
       const auto offset = size;
       size += std::snprintf(nullptr, 0, message, std::forward<Args>(args)...);
-      std::vector<char>  buffer_data(size+2);
-      std::snprintf(&buffer_data[0], offset + 1, "%s [%s %s:%lu]: ", get_timestamp().c_str(),
-                   level_to_string(loginfo.level).c_str(),
-                   loginfo.function_name.c_str(), loginfo.line);
-      std::snprintf(&buffer_data[0] + offset, buffer_data.size(), message, std::forward<Args>(args)...);
-      std::printf("%s", buffer_data.data());
+      char *buffer_data = reinterpret_cast<char*>(std::malloc(size + 2));
+      std::snprintf(&buffer_data[0], offset + 1,
+                    "%s [%s %s:%lu]: ", get_timestamp().c_str(),
+                    level_to_string(loginfo.level).c_str(),
+                    loginfo.function_name.c_str(), loginfo.line);
+      std::snprintf(&buffer_data[0] + offset, size - offset + 1, message,
+                    std::forward<Args>(args)...);
+      std::printf("%s", buffer_data);
       return buffer_data;
     }
-    return std::vector<char>();
+    return "";
   }
 
   template <typename... Args>
@@ -130,13 +133,15 @@ class ULogger : public nocopimovable {
 #ifdef THREAD_SAFE
     [[maybe_unused]] std::lock_guard<std::mutex> lk(logger_mutex);
 #endif
-    auto output = print(LogInfo{level, Color{color}, function_name, line}, message,
-          std::forward<Args &&>(args)...);
+    auto output = print(LogInfo{level, Color{color}, function_name, line},
+                        message, std::forward<Args &&>(args)...);
     {
-      std::ofstream save_file("data.log", std::ios_base::out | std::ios_base::app);
+      std::ofstream save_file("data.log",
+                              std::ios_base::out | std::ios_base::app);
       save_file << output.data();
     }
   }
+
  private:
 #if defined NDEBUG
   bool isrelease{true};
@@ -147,50 +152,51 @@ class ULogger : public nocopimovable {
 #endif
  public:
   template <typename... Args>
-  void debug(const char* function_name, const int line, const char* message,
-             Args&&... args) const {
+  void debug(const char *function_name, const int line, const char *message,
+             Args &&... args) const {
     if (level <= Level::debug) {
       ULogger::i().print_log_level(Level::debug, Color::blue, function_name,
                                    line, message,
-                                   std::forward<Args&&>(args)...);
+                                   std::forward<Args &&>(args)...);
     }
   }
 
   template <typename... Args>
-  void info(const char* function_name, const int line, const char* message,
-            Args&&... args) const {
+  void info(const char *function_name, const int line, const char *message,
+            Args &&... args) const {
     if (level <= Level::info) {
       ULogger::i().print_log_level(Level::info, Color::cyan, function_name,
                                    line, message,
-                                   std::forward<Args&&>(args)...);
+                                   std::forward<Args &&>(args)...);
     }
   }
   template <typename... Args>
-  void warn(const char* function_name, const int line, const char* message,
-            Args&&... args) const {
+  void warn(const char *function_name, const int line, const char *message,
+            Args &&... args) const {
     if (level <= Level::warn) {
       ULogger::i().print_log_level(Level::warn, Color::yellow, function_name,
                                    line, message,
-                                   std::forward<Args&&>(args)...);
+                                   std::forward<Args &&>(args)...);
     }
   }
   template <typename... Args>
-  void error(const char* function_name, const int line, const char* message,
-             Args&&... args) const {
+  void error(const char *function_name, const int line, const char *message,
+             Args &&... args) const {
     if (level <= Level::error) {
       ULogger::i().print_log_level(Level::error, Color::red, function_name,
                                    line, message,
-                                   std::forward<Args&&>(args)...);
+                                   std::forward<Args &&>(args)...);
     }
   }
   template <typename... Args>
-  void throw_assert(const bool condition, const char* function_name,
-                    const int line, const char* message, Args&&... args) const {
+  void throw_assert(const bool condition, const char *function_name,
+                    const int line, const char *message,
+                    Args &&... args) const {
     if (!isrelease && !condition) {
       {
         ULogger::i().print_log_level(Level::assert, Color::red, function_name,
                                      line, message,
-                                     std::forward<Args&&>(args)...);
+                                     std::forward<Args &&>(args)...);
       }
       assert(condition);
     }
@@ -202,9 +208,10 @@ class ULogger : public nocopimovable {
 };
 }  // namespace ueberlog
 
-#define ASSERT(condition, ...)                                          \
+#ifndef DISABLE_UEBERLOG
+#define ASSERT(condition, ...)                                           \
   ueberlog::ULogger::i().throw_assert(condition, __FUNCTION__, __LINE__, \
-                                     __VA_ARGS__)
+                                      __VA_ARGS__)
 #define DEBUG(...) \
   ueberlog::ULogger::i().debug(__FUNCTION__, __LINE__, __VA_ARGS__)
 #define INFO(...) \
@@ -213,5 +220,14 @@ class ULogger : public nocopimovable {
   ueberlog::ULogger::i().warn(__FUNCTION__, __LINE__, __VA_ARGS__)
 #define ERROR(...) \
   ueberlog::ULogger::i().error(__FUNCTION__, __LINE__, __VA_ARGS__)
+#else
+
+#define ASSERT(condition, ...)
+#define DEBUG(...)
+#define INFO(...)
+#define WARN(...)
+#define ERROR(...)
+
+#endif  // DISABLE_UEBERLOG
 
 #endif  // UEBERLOG_UEBERLOG_HPP
