@@ -118,7 +118,7 @@ class ULogger : public nocopimovable {
                     loginfo.function_name.c_str(), loginfo.line);
       std::snprintf(&buffer_data[0] + offset, size - offset + 1, message,
                     std::forward<Args>(args)...);
-      std::printf("%s", buffer_data);
+      std::printf("%s\n", buffer_data);
       return buffer_data;
     }
     return "";
@@ -135,11 +135,7 @@ class ULogger : public nocopimovable {
 #endif
     auto output = print(LogInfo{level, Color{color}, function_name, line},
                         message, std::forward<Args &&>(args)...);
-    {
-      std::ofstream save_file("data.log",
-                              std::ios_base::out | std::ios_base::app);
-      save_file << output.data();
-    }
+    save_file << output.data() << '\n';
   }
 
  private:
@@ -150,6 +146,7 @@ class ULogger : public nocopimovable {
   bool isrelease{false};
   Level level{Level::debug};
 #endif
+ std::ofstream save_file{"data.log", std::ios_base::out /*| std::ios_base::app*/};
  public:
   template <typename... Args>
   void debug(const char *function_name, const int line, const char *message,
