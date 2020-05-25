@@ -1,12 +1,25 @@
-cmake_minimum_required( VERSION 3.4.3 )
+cmake_minimum_required( VERSION 3.12 )
 project( ueberlog )
 set (TARGET_NAME ${PROJECT_NAME})
 
 option(BUILD_THREAD_SAFE "Build with thread safety" ON)
-option(BUILD_EXAMPLES    "Build with examples"      ON)
-option(BUILD_TOOLS       "Build with tools"         ON)
+option(BUILD_EXAMPLES    "Build with examples"      OFF)
+option(BUILD_TOOLS       "Build with tools"         OFF)
 
-add_library(${TARGET_NAME} SHARED "")
+option( BUILD_SHARED_LIBS "The shared library is made" OFF )
+
+include ( cmake/warnings.cmake )
+
+add_library(${TARGET_NAME}-cppfeatures INTERFACE )
+add_library(${TARGET_NAME}-cppwarnings INTERFACE )
+
+target_compile_features( ${TARGET_NAME}-cppfeatures INTERFACE cxx_std_17 )
+target_include_directories( ${TARGET_NAME}-cppfeatures INTERFACE include )
+
+set_project_warinigs( ${TARGET_NAME}-cppwarnings )
+
+
+add_library(${TARGET_NAME})
 
 add_subdirectory( include )
 add_subdirectory( src     )
@@ -14,41 +27,13 @@ add_subdirectory( src     )
 if ( ${BUILD_EXAMPLES} )
   add_subdirectory( example )
 endif()
+
 if ( ${BUILD_TOOLS} )
   add_subdirectory( tools   )
 endif()
+
 if (${BUILD_THREAD_SAFE})
-  message( STATUS "Thread safe enabled" )
-  target_compile_definitions( ${TARGET_NAME} PUBLIC -DTHREAD_SAFE )
+  target_compile_definitions( ${TARGET_NAME} PRIVATE -DTHREAD_SAFE )
 endif()
 
-target_compile_features( ${TARGET_NAME} PUBLIC cxx_std_17 )
-target_include_directories ( ${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-if(MSVC)
-  target_compile_options(${TARGET_NAME} INTERFACE /W4)
-else()
-  target_compile_options(${TARGET_NAME}
-                         INTERFACE
-                         -Wall
-                         -Wextra # reasonable and standard
-                         -Wshadow # warn the user if a variable declaration shadows one from a
-                                  # parent context
-                         -Wnon-virtual-dtor # warn the user if a class with virtual functions has a
-                                            # non-virtual destructor. This helps catch hard to
-                                            # track down memory errors
-                         -Wold-style-cast # warn for c-style casts
-                         -Wcast-align # warn for potential performance problem casts
-                         -Wunused # warn on anything being unused
-                         -Woverloaded-virtual # warn if you overload (not override) a virtual
-                         -Wpedantic # warn if non-standard C++ is used
-                         -Wconversion # warn on type conversions that may lose data
-                         -Wsign-conversion # warn on sign conversions
-                         -Wbinding-in-condition # warn if identation implies blocks where blocks
-                         -Wduplicate-enum # warn if if / else chain has duplicated conditions
-                         -Wnull-dereference # warn if a null dereference is detected
-                         -Wdouble-promotion # warn if float is implicit promoted to double
-                         -Wformat=2 # warn on security issues around functions that format output
-                                    # (ie printf)
-                          )
-endif()
+target_link_libraries( ${TARGET_NAME} PRIVATE ${TARGET_NAME}-cppfeatures ${TARGET_NAME}-cppwarnings )

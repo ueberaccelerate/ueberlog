@@ -5,5 +5,5 @@
 #test_impl.cpp
 #test_impl.hpp
 
-target_sources( ${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/ueberlog/ueberlog.hpp)
+target_sources( ${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/ueberlog/ueberlog.hpp)
 
