@@ -14,12 +14,12 @@ add_library(${TARGET_NAME}-cppfeatures INTERFACE )
 add_library(${TARGET_NAME}-cppwarnings INTERFACE )
 
 target_compile_features( ${TARGET_NAME}-cppfeatures INTERFACE cxx_std_17 )
-target_include_directories( ${TARGET_NAME}-cppfeatures INTERFACE include )
+
 
 set_project_warinigs( ${TARGET_NAME}-cppwarnings )
 
-
 add_library(${TARGET_NAME})
+target_include_directories( ${TARGET_NAME} INTERFACE include )
 
 add_subdirectory( include )
 add_subdirectory( src     )
