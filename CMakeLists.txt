@@ -2,7 +2,7 @@ cmake_minimum_required( VERSION 3.12 )
 project( ueberlog )
 set (TARGET_NAME ${PROJECT_NAME})
 
-option(BUILD_THREAD_SAFE "Build with thread safety" ON)
+option(BUILD_THREAD_SAFE "Build with thread safety" OFF)
 option(BUILD_EXAMPLES    "Build with examples"      OFF)
 option(BUILD_TOOLS       "Build with tools"         OFF)
 
@@ -14,7 +14,6 @@ add_library(${TARGET_NAME}-cppfeatures INTERFACE )
 add_library(${TARGET_NAME}-cppwarnings INTERFACE )
 
 target_compile_features( ${TARGET_NAME}-cppfeatures INTERFACE cxx_std_17 )
-
 
 set_project_warinigs( ${TARGET_NAME}-cppwarnings )
 
